@@ -98,8 +98,8 @@ Arbitrary HTML is also supported
       <context-free-parser url="{{}}" on-data-ready="{{parserDataReady}}"></context-free-parser>
     </template>
  -->
-    <!-- <core-doc-toc id="toc" data="{{classes}}" selected="{{selected}}"></core-doc-toc> -->
-    <core-doc-page flex data="{{data}}"></core-doc-page>
+    <core-doc-toc id="toc" hidden data="{{classes}}" selected="{{selected}}"></core-doc-toc>
+    <core-doc-page id="pg" flex data="{{data}}"></core-doc-page>
 
   </template>
 
@@ -169,6 +169,7 @@ Arbitrary HTML is also supported
 
       parserDataReady: function(event, detail, sender) {
         var path = '';
+
         if (this.sources.length) {
           var path = event.target.templateInstance.model;
           var idx = path.lastIndexOf('/');
@@ -207,18 +208,16 @@ Arbitrary HTML is also supported
       },
 
       assimilateData: function(data) {
-        this.classes = this.classes.concat(data.classes);
+        // this.classes = this.classes.concat(data.classes);
+        this.classes = data.classes;
+
         this.classes.sort(function(a, b) {
           var na = a && a.name.toLowerCase(), nb = b && b.name.toLowerCase();
           return (na < nb) ? -1 : (na == nb) ? 0 : 1;
         });
-        if (!this.data && !this.route && this.classes.length) {
-          this.data = this.classes[0];
-        }
-        if (this.classes.length > 1) {
-          this.$.toc.style.display = 'block';
-        }
-        this.validateRoute();
+        this.data = this.classes[0];
+        this.$.pg.data = this.data;
+        console.log(this.$.pg.data);
       }
 
     });
