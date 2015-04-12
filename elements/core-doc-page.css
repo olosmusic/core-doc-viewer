@@ -22,11 +22,7 @@ core-icon {
 }
 
 .main {
-<<<<<<< HEAD
   /*padding: 0 72px;*/
-=======
-  padding: 0 72px;
->>>>>>> 61ea1e39fe3c82ad8c3682972db96148cc931f35
   max-width: 832px;
   margin: 0 auto;
 }
@@ -55,12 +51,10 @@ h3 {
 .box:not(.top) .details .params {
   margin-top: 40px;
 }
-<<<<<<< HEAD
-=======
+
 .params > p:first-child {
   text-decoration: underline;
 }
->>>>>>> 61ea1e39fe3c82ad8c3682972db96148cc931f35
 
 .box:not(.top) h3 {
   padding: 16px;
@@ -179,8 +173,4 @@ pre .atv,pre .attribute-value,.prettyprint .atv,.prettyprint .attribute-value {
 }
 pre .com,pre .comment,.prettyprint .com,.prettyprint .comment {
   color: #8a8a8a
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 61ea1e39fe3c82ad8c3682972db96148cc931f35
