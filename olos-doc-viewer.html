@@ -6,11 +6,9 @@
     The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
     Code distributed by Google as part of the polymer project is also
     subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
-<link rel="import" href="elements/core-doc-page.html">
+--><html><head><link rel="import" href="elements/core-doc-page.html">
 <link rel="import" href="elements/core-doc-toc.html">
-<link rel="import" href="../core-icon/core-icon.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 
 <!--
 Displays formatted source documentation scraped from input urls.
@@ -78,11 +76,38 @@ Arbitrary HTML is also supported
 @homepage github.io
 -->
 
-<polymer-element name="olos-doc-viewer" attributes="sources route url" horizontal layout>
-
-  <template>
-
-    <style>
+  <style is="custom-style">
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+  </style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<dom-module id="olos-doc-viewer">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    :host[layout] {
+      @apply(--layout);
+    }
+    :host[layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+  <style>
 
       core-doc-toc {
         display: none;
@@ -91,63 +116,76 @@ Arbitrary HTML is also supported
       }
 
     </style>
+  <template>
 
-    <context-free-parser url="{{url}}" on-data-ready="{{parserDataReady}}"></context-free-parser>
+    <context-free-parser url="{{url}}" on-data-ready="parserDataReady"></context-free-parser>
 
 <!--     <template repeat="{{sources}}">
       <context-free-parser url="{{}}" on-data-ready="{{parserDataReady}}"></context-free-parser>
     </template>
  -->
-    <core-doc-toc id="toc" hidden data="{{classes}}" selected="{{selected}}"></core-doc-toc>
-    <core-doc-page id="pg" flex data="{{data}}"></core-doc-page>
+    <core-doc-toc id="toc" hidden="" data="{{classes}}" selected="{{selected}}"></core-doc-toc>
+    <core-doc-page id="pg" flex="" data="{{data}}"></core-doc-page>
 
   </template>
-
   <script>
-
     Polymer({
-      /**
-       * A single file to parse for docs
-       *
-       * @attribute url
-       * @type String
-       * @default ''
-       */
-
-      /**
-       * Class documentation extracted from the parser
-       *
-       * @property classes
-       * @type Array
-       * @default []
-       */
-      classes: [],
-
-      /**
-       * Files to parse for docs
-       *
-       * @attribute sources
-       * @type Array
-       * @default []
-       */
-      sources: [],
-
-      ready: function() {
+      is: 'olos-doc-viewer',
+      properties: {
+        /**
+         * A single file to parse for docs
+         *
+         * @attribute url
+         * @type String
+         * @default ''
+         */
+        /**
+         * Class documentation extracted from the parser
+         *
+         * @property classes
+         * @type Array
+         * @default []
+         */
+        classes: {
+          type: Array,
+          value: function () {
+            return [];
+          }
+        },
+        route: {
+          notify: true,
+          observer: 'routeChanged'
+        },
+        selected: { observer: 'selectedChanged' },
+        /**
+         * Files to parse for docs
+         *
+         * @attribute sources
+         * @type Array
+         * @default []
+         */
+        sources: {
+          type: Array,
+          value: function () {
+            return [];
+          },
+          notify: true
+        },
+        url: { notify: true }
+      },
+      ready: function () {
         window.addEventListener('hashchange', this.parseLocationHash.bind(this));
         this.parseLocationHash();
       },
-
-      parseLocationHash: function() {
+      parseLocationHash: function () {
         this.route = window.location.hash.slice(1);
       },
-
-      routeChanged: function() {
+      routeChanged: function () {
         this.validateRoute();
       },
-
-      validateRoute: function() {
+      validateRoute: function () {
         if (this.route) {
-          this.classes.some(function(c) {
+          this.classes.some(function (c) {
             // The URL fragment might be just a class name,
             // or it might be a class name followed by a '.' and then
             // a section of the page.
@@ -162,14 +200,11 @@ Arbitrary HTML is also supported
           }, this);
         }
       },
-
-      selectedChanged: function() { 
+      selectedChanged: function () {
         this.data = this.classes[this.selected];
       },
-
-      parserDataReady: function(event, detail, sender) {
+      parserDataReady: function (event, detail, sender) {
         var path = '';
-
         if (this.sources.length) {
           var path = event.target.templateInstance.model;
           var idx = path.lastIndexOf('/');
@@ -179,18 +214,13 @@ Arbitrary HTML is also supported
           parts.pop();
           path = parts.join('/');
         }
-
         var data = event.target.data;
-
         var xhr = new XMLHttpRequest();
         xhr.open('GET', path + '/bower.json');
-
-        xhr.onerror = function(e) {
+        xhr.onerror = function (e) {
           this.assimilateData(data);
         }.bind(this);
-
-        xhr.onloadend = function(e) {
-
+        xhr.onloadend = function (e) {
           // Add package version to data.
           if (e.target.status == 200) {
             var version = JSON.parse(e.target.response).version;
@@ -199,29 +229,25 @@ Arbitrary HTML is also supported
               c.version = version;
             }
           }
-
           this.assimilateData(data);
-
         }.bind(this);
-
         xhr.send();
       },
-
-      assimilateData: function(data) {
+      assimilateData: function (data) {
         // this.classes = this.classes.concat(data.classes);
         this.classes = data.classes;
-
-        this.classes.sort(function(a, b) {
+        this.classes.sort(function (a, b) {
           var na = a && a.name.toLowerCase(), nb = b && b.name.toLowerCase();
-          return (na < nb) ? -1 : (na == nb) ? 0 : 1;
+          return na < nb ? -1 : na == nb ? 0 : 1;
         });
         this.data = this.classes[0];
-        this.$.pg.data = this.data;
+        this.set('$.pg.data', this.data);
         console.log(this.$.pg.data);
+      },
+      hostAttributes: {
+        'horizontal': '',
+        'layout': ''
       }
-
     });
-
   </script>
-
-</polymer-element>
+</dom-module>
